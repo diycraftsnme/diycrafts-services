@@ -1,0 +1,171 @@
+{
+  "name": "angular-seed",
+  "private": true,
+  "version": "0.0.0",
+  "description": "A starter project for AngularJS",
+  "repository": "",
+  "license": "MIT",
+  "devDependencies": {
+    "angular-local-storage": "~0.2.2",
+    "browser-sync": "^2.11.2",
+    "event-stream": "*",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-ignore": "^2.0.1",
+    "gulp-inject": "*",
+    "gulp-json-transform": "^0.3.0",
+    "gulp-minify-css": "^1.2.3",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^2.2.0",
+    "gulp-uglify": "^1.5.3",
+    "http-server": "^0.6.1",
+    "jasmine-core": "^2.3.4",
+    "jspm": "^0.17.0-beta.22",
+    "karma": "~0.12",
+    "karma-chrome-launcher": "^0.1.12",
+    "karma-firefox-launcher": "^0.1.6",
+    "karma-jasmine": "^0.3.5",
+    "karma-junit-reporter": "^0.2.2",
+    "moment": "~2.4.0",
+    "mongodb": "~2.0.41",
+    "protractor": "^2.1.0"
+  },
+  "jspm": {
+    "name": "diy-crafts-blog",
+    "main": "diy-crafts-blog.js",
+    "dependencies": {
+      "angular": "github:angular/bower-angular@^1.5.7",
+      "angular-ui/bootstrap-bower": "github:angular-ui/bootstrap-bower@^1.3.3",
+      "angular/bower-angular-animate": "github:angular/bower-angular-animate@^1.5.7",
+      "angular/bower-angular-aria": "github:angular/bower-angular-aria@^1.5.7",
+      "babel": "npm:babel-core@^6.10.4",
+      "babel-polyfill": "npm:babel-polyfill@^6.9.1",
+      "babel-runtime": "npm:babel-runtime@^6.9.2",
+      "jquery-ui": "github:components/jqueryui@^1.11.4",
+      "jquery": "npm:jquery@^3.1.0",
+      "systemjs-plugin-babel": "npm:systemjs-plugin-babel@^0.0.12",
+      "ui-router": "github:angular-ui/angular-ui-router-bower@^0.3.1"
+    },
+    "devDependencies": {
+      "plugin-babel": "npm:systemjs-plugin-babel@^0.0.12"
+    },
+    "peerDependencies": {
+      "assert": "github:jspm/nodelibs-assert@^0.2.0-alpha",
+      "buffer": "github:jspm/nodelibs-buffer@^0.2.0-alpha",
+      "child_process": "github:jspm/nodelibs-child_process@^0.2.0-alpha",
+      "events": "github:jspm/nodelibs-events@^0.2.0-alpha",
+      "fs": "github:jspm/nodelibs-fs@^0.2.0-alpha",
+      "http": "github:jspm/nodelibs-http@^0.2.0-alpha",
+      "module": "github:jspm/nodelibs-module@^0.2.0-alpha",
+      "path": "github:jspm/nodelibs-path@^0.2.0-alpha",
+      "process": "github:jspm/nodelibs-process@^0.2.0-alpha",
+      "stream": "github:jspm/nodelibs-stream@^0.2.0-alpha",
+      "url": "github:jspm/nodelibs-url@^0.2.0-alpha",
+      "util": "github:jspm/nodelibs-util@^0.2.0-alpha"
+    },
+    "overrides": {
+      "github:angular-ui/angular-ui-router-bower@0.3.1": {
+        "dependencies": {
+          "angular": "*"
+        },
+        "meta": {
+          "release/angular-ui-router.js.js": {
+            "deps": [
+              "angular"
+            ],
+            "format": "global"
+          }
+        }
+      },
+      "github:angular/bower-angular-animate@1.5.7": {
+        "main": "angular-animate",
+        "registry": "jspm",
+        "dependencies": {
+          "angular": "^1.3.0"
+        },
+        "meta": {
+          "angular-animate.js": {
+            "deps": [
+              "angular"
+            ],
+            "format": "global"
+          }
+        }
+      },
+      "github:angular/bower-angular-aria@1.5.7": {
+        "main": "angular-aria",
+        "registry": "jspm",
+        "dependencies": {
+          "angular": "^1.3.0"
+        },
+        "meta": {
+          "angular-aria.js": {
+            "deps": [
+              "angular"
+            ],
+            "format": "global"
+          }
+        }
+      },
+      "github:angular/bower-angular@1.5.7": {
+        "main": "angular",
+        "meta": {
+          "angular.js": {
+            "exports": "angular",
+            "format": "global"
+          }
+        }
+      },
+      "github:components/jqueryui@1.11.4": {
+        "main": "jquery-ui.js",
+        "registry": "jspm",
+        "dependencies": {
+          "jquery": "*"
+        }
+      },
+      "npm:debug@2.2.0": {
+        "main": "browser.js",
+        "jspmNodeConversion": false,
+        "format": "cjs",
+        "map": {
+          "./browser.js": {
+            "node": "./node.js"
+          },
+          "fs": "@node/fs",
+          "net": "@node/net",
+          "tty": "@node/tty",
+          "util": "@node/util"
+        }
+      },
+      "npm:inherits@2.0.1": {
+        "ignore": [
+          "test.js"
+        ]
+      },
+      "npm:lodash@4.13.1": {
+        "map": {
+          "buffer": "@empty",
+          "process": "@empty"
+        }
+      },
+      "npm:ms@0.7.1": {
+        "jspmNodeConversion": false,
+        "format": "cjs"
+      }
+    }
+  },
+  "scripts": {
+    "postinstall": "bower install",
+    "prestart": "npm install",
+    "start": "supervisor ../admin-services/request-handler/client-request.js",
+    "pretest": "npm install",
+    "test": "karma start test/my.conf.js",
+    "test-single-run": "karma start karma.conf.js  --single-run",
+    "preupdate-webdriver": "npm install",
+    "update-webdriver": "webdriver-manager update",
+    "preprotractor": "npm run update-webdriver",
+    "protractor": "protractor e2e-tests/protractor.conf.js",
+    "update-index-async": "node -e \"require('shelljs/global'); sed('-i', /\\/\\/@@NG_LOADER_START@@[\\s\\S]*\\/\\/@@NG_LOADER_END@@/, '//@@NG_LOADER_START@@\\n' + sed(/sourceMappingURL=angular-loader.min.js.map/,'sourceMappingURL=bower_components/angular-loader/angular-loader.min.js.map','app/bower_components/angular-loader/angular-loader.min.js') + '\\n//@@NG_LOADER_END@@', 'app/index-async.html');\""
+  }
+}

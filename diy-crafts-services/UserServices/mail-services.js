@@ -4,16 +4,17 @@
 "use strict";
 (function(){
     var helper = require('sendgrid').mail;
+    var sendgrid = require('sendgrid');
     var testFromMail = 'letscreate@diycraftsnme.com';
+    var testFromName = 'DiyCraftsNMe';
     var testToMail = 'muthukrishnan.suresh1987@gmail.com';
     var testSubject = 'Test Send';
     var testContent = 'Hello, Email!';
-    //var mail = new helper.Mail(from_email, _subject, to_email, _content);
     var accessKey = require('../config/access-key.js');
     var sg = require('sendgrid')(accessKey);
-
+    var constants = require('../config/constants.js');
     var mailServices = {
-        sendMail: function(fromEmail, toEmail, reqsubject, reqContent, name, res){
+        sendMail: function(fromEmail, toEmail, reqsubject, reqContent, name, templateName, res){
             var fromMail = testFromMail, toMail = testToMail, subject = testSubject, content = testContent, mail;
             if(fromEmail){
                 fromMail = fromEmail;
@@ -34,17 +35,11 @@
             if(name){
                 content = "Hello "+ name + "," + content;
             }
-            var from_email = new helper.Email(fromMail);
-            var to_email = new helper.Email(toMail);
-            var _subject = subject;
-            var _content = new helper.Content('text/plain', content);
-            if(from_email && to_email && _subject && _content){
-                mail = new helper.Mail(from_email, _subject, to_email, _content);
-            }
+            var mailObj = this.getMailObject(fromMail, toMail, subject, content, name, templateName);
             var request = sg.emptyRequest({
                 method: 'POST',
                 path: '/v3/mail/send',
-                body: mail.toJSON()
+                body: mailObj
             });
 
             sg.API(request, function(error, response) {
@@ -72,8 +67,32 @@
                 }
             });
         },
-        storeSuggestContact: function(fromEmail, toEmail, subject, content){
+        storeSuggestContact: function(fromEmail, toEmail, subject, content, name){
 
+        },
+        getMailObject: function(fromEmail, toEmail, subject, content,name, templateName ){
+            var mail = new helper.Mail();
+            var from_email = new helper.Email(fromEmail, testFromName);
+            var to_email = new helper.Email(toEmail, name);
+            //var _subject = subject;
+            //var _content = new helper.Content('text/plain', content);
+            mail.setFrom(from_email);
+
+            //mail.setSubject(_subject);
+
+            var personalization = new helper.Personalization();
+            personalization.addTo(to_email);
+            personalization.addBcc(from_email);
+            var substitution = new helper.Substitution("%name%", name);
+            personalization.addSubstitution(substitution);
+            mail.addPersonalization(personalization);
+            //mail.addContent(_content);
+            mail.setTemplateId(constants[templateName]);
+            mail.setReplyTo(from_email);
+            var mailObj = mail.toJSON();
+            //mailObj.template_id = 'a36d1ae6-6ba7-49a7-8694-d0698a8aeded';
+
+            return mailObj;
         }
     };
     module.exports = mailServices;

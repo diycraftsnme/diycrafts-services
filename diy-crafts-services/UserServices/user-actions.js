@@ -118,7 +118,7 @@
             if(!unSubscribe){
                 userDataSaved.save([userObj], function(err, result){
                     if (!assert.equal(null, err)) {
-                        mailServices.sendMail(undefined, reqData.email, 'Subscribed Successfully to diycraftsnme.com', 'You are now subscribed for notifications from diycraftsnme.com! Happy Crafting!!', reqData.name, res);
+                        mailServices.sendMail(undefined, reqData.email, 'Subscribed Successfully to diycraftsnme.com', 'You are now subscribed for notifications from diycraftsnme.com! Happy Crafting!!', reqData.name,'subscribe_success', res);
                         /*res.status(200);
                         res.json({
                             "status": 200,

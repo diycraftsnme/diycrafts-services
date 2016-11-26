@@ -12,12 +12,12 @@ router.get('/test', users.test);
 /*
  * Routes that can be accessed only by autheticated users
  */
-router.post('/api/v1/projects/projectsList', projects.read);
-router.post('/api/v1/projects/details', projects.fetch);
-router.post('/api/v1/projects/latest', projects.getLatest);
+router.get('/api/v1/projects/projectsList', projects.fetch);
+router.get('/api/v1/projects/details', projects.read);
+router.get('/api/v1/projects/latest', projects.getLatest);
 router.post('/api/v1/users/suggest', users.suggestContact);
 router.post('/api/v1/users/contact', users.suggestContact);
 router.post('/api/v1/users/subscribe', users.subscribe);
-router.post('/api/v1/users/unSubscribe', users.unSubscribe);
+router.get('/api/v1/users/unSubscribe/:userId', users.unSubscribe);
 
 module.exports = router;

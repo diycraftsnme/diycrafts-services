@@ -14,28 +14,31 @@
     var sg = require('sendgrid')(accessKey);
     var constants = require('../config/constants.js');
     var mailServices = {
-        sendMail: function(fromEmail, toEmail, reqsubject, reqContent, name, templateName, res){
-            var fromMail = testFromMail, toMail = testToMail, subject = testSubject, content = testContent, mail;
-            if(fromEmail){
-                fromMail = fromEmail;
-            }
-            
-            if(toEmail){
-                toMail = toEmail;
-            }
+        sendMail: function(res, _mailObj, templateName, substitutionObj){
+            var fromMail = testFromMail, toMail = testToMail, subject = testSubject, content = testContent, mail, name;
+            if(_mailObj){
+                if(_mailObj.fromEmail){
+                    fromMail = _mailObj.fromEmail;
+                }
 
-            if(reqsubject){
-                subject = reqsubject;
-            }
+                if(_mailObj.toEmail){
+                    toMail = _mailObj.toEmail;
+                }
 
-            if(reqContent){
-                content = reqContent;
-            }
+                if(_mailObj.subject){
+                    subject = _mailObj.subject;
+                }
 
-            if(name){
-                content = "Hello "+ name + "," + content;
+                if(_mailObj.content){
+                    content = _mailObj.content;
+                }
+
+                if(_mailObj.name){
+                    content = "Hello "+ _mailObj.name + "," + content;
+                    name = _mailObj.name;
+                }
             }
-            var mailObj = this.getMailObject(fromMail, toMail, subject, content, name, templateName);
+            var mailObj = this.getMailObject(fromMail, toMail, subject, content, name, templateName, substitutionObj);
             var request = sg.emptyRequest({
                 method: 'POST',
                 path: '/v3/mail/send',
@@ -44,9 +47,6 @@
 
             sg.API(request, function(error, response) {
                 if(!error){
-                    console.log(response.statusCode);
-                    console.log(response.body);
-                    console.log(response.headers);
                     if(res){
                         res.status(200);
                         res.json({
@@ -70,27 +70,38 @@
         storeSuggestContact: function(fromEmail, toEmail, subject, content, name){
 
         },
-        getMailObject: function(fromEmail, toEmail, subject, content,name, templateName ){
+        getMailObject: function(fromEmail, toEmail, subject, content,name, templateName, substitutionObj ){
             var mail = new helper.Mail();
             var from_email = new helper.Email(fromEmail, testFromName);
             var to_email = new helper.Email(toEmail, name);
-            //var _subject = subject;
-            //var _content = new helper.Content('text/plain', content);
+            var _content = new helper.Content('text/plain', content);
             mail.setFrom(from_email);
-
-            //mail.setSubject(_subject);
-
             var personalization = new helper.Personalization();
             personalization.addTo(to_email);
             personalization.addBcc(from_email);
-            var substitution = new helper.Substitution("%name%", name);
-            personalization.addSubstitution(substitution);
+            if(substitutionObj){
+                for(var prop in substitutionObj){
+                    if(substitutionObj.hasOwnProperty(prop)){
+                        var val = substitutionObj[prop];
+                        var substitution = new helper.Substitution('%'+prop+'%', val);
+                        personalization.addSubstitution(substitution);
+                    }
+                }
+            }else{
+                var substitution = new helper.Substitution("%name%", name);
+                personalization.addSubstitution(substitution);
+            }
             mail.addPersonalization(personalization);
             //mail.addContent(_content);
-            mail.setTemplateId(constants[templateName]);
-            mail.setReplyTo(from_email);
+            var template = constants.template[templateName];
+            if(template){
+                mail.setTemplateId(constants.template[templateName]);
+            }else{
+                mail.setSubject(subject);
+                mail.addContent(_content);
+            }
+            mail.setReplyTo(from_email); 
             var mailObj = mail.toJSON();
-            //mailObj.template_id = 'a36d1ae6-6ba7-49a7-8694-d0698a8aeded';
 
             return mailObj;
         }

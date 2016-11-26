@@ -15,7 +15,7 @@
         "description":  String,
         "materialsRequired": Array,
         "procedure": Array,
-        "videoDate": Number,
+        "publishDate": Number,
         "photoGuideAvailable": Boolean,
         "videoGuideAvailable": Boolean,
         "videoUrl": String,

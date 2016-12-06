@@ -1,4 +1,4 @@
-(function () {
+
     var mailServices = require('../UserServices/mail-services.js');
     var userActions = require('../UserServices/user-actions.js');
     
@@ -17,4 +17,3 @@
         }
     };
     module.exports = users;
-})();

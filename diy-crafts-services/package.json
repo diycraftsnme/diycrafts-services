@@ -29,7 +29,7 @@
     "rewire": "~2.5.1",
     "shelljs": "^0.2.6",
     "prerender-node": "^2.2.0",
-    "sendgrid":"@4.6.0"
+    "sendgrid":"4.7.1"
   },
   "scripts": {
     "prestart": "npm install",

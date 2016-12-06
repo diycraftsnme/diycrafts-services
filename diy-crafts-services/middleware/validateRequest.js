@@ -1,4 +1,4 @@
-(function() {
+
 var jwt = require('jwt-simple');
 var validateUser = require('../routes/auth').validateUser;
 var Q = require('q');
@@ -89,4 +89,3 @@ module.exports = function(req, res, next) {
         return;
     }
 };
-})();

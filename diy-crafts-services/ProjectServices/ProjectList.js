@@ -22,7 +22,7 @@
         },
         getAllProjects: function(req, res){
             if(req && req.headers['x-diycrafts-target'] && req.headers['x-diycrafts-target'] === 'GET_PROJECTS'){
-             this.getProjects(res, {});   
+             projectList.getProjects(res, {});
             }else{
                 customResponseObj.targetError(res);
             }
@@ -49,14 +49,25 @@
             if(_query){
                 query = _query;
             }
-            mongoProjectInst.collection.find(query,queryOptions).limit(_limit).toArray(function(err, results){
-                if(assert.equal(null, err)){
-                    customResponseObj.serverError(res);
-                }else{
-                    customResponseObj.successResponse(res, results);
-                }
+            if(limit){
+                mongoProjectInst.collection.find(query,queryOptions).limit(_limit).toArray(function(err, results){
+                    if(assert.equal(null, err)){
+                        customResponseObj.serverError(res);
+                    }else{
+                        customResponseObj.successResponse(res, results);
+                    }
 
-            });
+                });
+            }else{
+                mongoProjectInst.collection.find(query,queryOptions).toArray(function(err, results){
+                    if(assert.equal(null, err)){
+                        customResponseObj.serverError(res);
+                    }else{
+                        customResponseObj.successResponse(res, results);
+                    }
+
+                });
+            }
         }
     };
     module.exports = projectList;

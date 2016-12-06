@@ -15,16 +15,16 @@
             if(req && req.headers['x-diycrafts-target'] && (req.headers['x-diycrafts-target'] === 'DIYCRAFTS_CREATE' || req.headers['x-diycrafts-target'] === 'DIYCRAFTS_UPDATE')){
                 var requestObj = req.body, self = this;
                 if(requestObj){
-                   var detailsObj = this.validateProjectDetails(requestObj), headerTarget= req.headers['x-diycrafts-target'];
+                   var detailsObj = createUpdateProject.validateProjectDetails(requestObj), headerTarget= req.headers['x-diycrafts-target'];
                     if(detailsObj){
-                        detailsObj = this.mapOptionalProjectDetails(requestObj, detailsObj);
+                        detailsObj = createUpdateProject.mapOptionalProjectDetails(requestObj, detailsObj);
                         if(detailsObj){
                             switch (headerTarget){
                                 case 'DIYCRAFTS_CREATE':
-                                    self.createNewProject(requestObj, detailsObj, res);
+                                    createUpdateProject.createNewProject(requestObj, detailsObj, res);
                                     break;
                                 case 'DIYCRAFTS_UPDATE':
-                                    self.createNewProject(requestObj, detailsObj, res, true);
+                                    createUpdateProject.createNewProject(requestObj, detailsObj, res, true);
                                     break;
                             }
                         }
@@ -56,7 +56,7 @@
                 for(var rIndx in reqProp){
                     if(reqProp.hasOwnProperty(rIndx)){
                         var prop = reqProp[rIndx];
-                        if(!details[prop]){
+                        if(details[prop] === undefined){
                             return false;
                         }else{
                             detailObj[prop] = details[prop];
@@ -64,6 +64,7 @@
                     }
                 }
             }
+             return detailObj;
         },
         mapOptionalProjectDetails: function(requestObj, detailsObj){
             if(requestObj && detailsObj){

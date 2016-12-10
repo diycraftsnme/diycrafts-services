@@ -9,7 +9,8 @@ var DiyCraftsConstants = {
     },
     project:{
         details:['name', 'description', 'materialsRequired', 'procedure', 'photoGuideAvailable', 'videoGuideAvailable', 'videoUrl', 'videoId', 'urlName', 'thumbnailName', 'tags'],
-        details_optionals:['className']
+        details_optionals:['className'],
+        update_required:['projectId', 'publishDate']
     }
     
 };

@@ -17,7 +17,7 @@
                 if(requestObj){
                    var detailsObj = createUpdateProject.validateProjectDetails(requestObj), headerTarget= req.headers['x-diycrafts-target'];
                     if(detailsObj){
-                        detailsObj = createUpdateProject.mapOptionalProjectDetails(requestObj, detailsObj);
+                        detailsObj = createUpdateProject.mapProjectDetails(requestObj, detailsObj, constants.project.details_optionals);
                         if(detailsObj){
                             switch (headerTarget){
                                 case 'DIYCRAFTS_CREATE':
@@ -66,12 +66,11 @@
             }
              return detailObj;
         },
-        mapOptionalProjectDetails: function(requestObj, detailsObj){
-            if(requestObj && detailsObj){
-                var optionalProps = constants.project.details_optionals;
-                for(var oIndx in optionalProps){
-                    if(optionalProps.hasOwnProperty(oIndx)){
-                        var prop = optionalProps[oIndx];
+        mapProjectDetails: function(requestObj, detailsObj, fieldLookUp){
+            if(requestObj && detailsObj && fieldLookUp){
+                for(var oIndx in fieldLookUp){
+                    if(fieldLookUp.hasOwnProperty(oIndx)){
+                        var prop = fieldLookUp[oIndx];
                         if(requestObj[prop]!== undefined){
                             detailsObj[prop] = requestObj[prop];
                         }
@@ -86,26 +85,43 @@
                 var savedProject = q.resolve(createUpdateProject.checkIfProjectExists(requestObj));
                 savedProject.then(function(projectSaved){
                     if(!projectSaved){
-                        var projects = q.resolve(createUpdateProject.getProjects());
-                        projects.then(function(projectsList){
-                            var projectIdNum = 1;
-                           if(projectsList && projectsList.length > 0){
-                               projectIdNum = projectsList.length;
-                           }
-                            detailsObj.publishDate = moment.utc().valueOf();
-                            detailsObj.projectId = 'diy-'+projectIdNum;
+                        if(isUpdate){
+                            customResponseObj.invalidRequest(res, 'Project does not exist to update'); 
+                        }else{
+                            var projects = q.resolve(createUpdateProject.getProjects());
+                            projects.then(function(projectsList){
+                                var projectIdNum = 1;
+                                if(projectsList && projectsList.length > 0){
+                                    projectIdNum = projectsList.length;
+                                }
+                                detailsObj.publishDate = moment.utc().valueOf();
+                                detailsObj.projectId = 'diy-'+projectIdNum;
+                                var projectInst = mongoProjectInst(detailsObj);
+                                projectInst.save([detailsObj], function(err, result){
+                                    if(result && result.projectId){
+                                        res.status(200);
+                                        res.json({
+                                            projectId: result.projectId
+                                        });
+                                    }
+                                });
+                            });
+                        }
+                    }else{
+                        if(isUpdate && requestObj.projectId && projectSaved && projectSaved.projectId === requestObj.projectId){
+                            createUpdateProject.mapProjectDetails(requestObj, detailsObj, constants.project.update_required);
                             var projectInst = mongoProjectInst(detailsObj);
-                            projectInst.save([detailsObj], function(err, result){
-                                if(result && result.projectId){
+                            projectInst.collection.replaceOne({projectId: requestObj.projectId}, detailsObj, function(err, result){
+                                if(result && result.matchedCount && result.matchedCount === 1){
                                     res.status(200);
                                     res.json({
-                                       projectId: result.projectId
+                                        projectId: requestObj.projectId
                                     });
                                 }
                             });
-                        });
-                    }else{
-                        customResponseObj.invalidRequest(res, 'Project already exists');
+                        }else{
+                            customResponseObj.invalidRequest(res, 'Project already exists');
+                        }
                     }
                 });
             }

@@ -7,7 +7,9 @@
     // create schema
     var userSchema  = new mongoSchema({
         "email" : String,
-        "name" : String
+        "firstName" : String,
+        "lastName" : String,
+        "password": String
     });
     var projectSchema = new mongoSchema({
         "projectId": String,

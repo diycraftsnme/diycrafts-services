@@ -16,34 +16,55 @@ module.exports = function(req, res, next) {
 
     if (token || key) {
         try {
-            //var decoded = jwt.decode(token || key, require('../config/secret.js')());
 
-            /*if (decoded.exp <= Date.now() && false) {
-                res.status(400);
-                res.json({
-                    "status": 400,
-                    "message": "Token Expired"
-                });
-                return;
-            }*/
+            
+            if(req.headers['x-diy-mode']){
+                if(req.headers['x-diy-mode'] === 'MEMBER'){
+                    // Authorize the user to see if s/he can access our resources
+                    var decoded = jwt.decode(token || key, require('../config/secret.js')());
 
-            // Authorize the user to see if s/he can access our resources
-            if (req.url.indexOf('/api/v1/') >= 0) {
-                //req.userDetails = data;
-                next(); // To move to next middleware
-            } else {
-                res.status(403);
-                res.json({
-                    "status": 403,
-                    "message": "Not Authorized"
-                });
-                return;
-            }
-            /*var dbUser = Q.resolve(validateUser(decoded.userid)); // The key would be the logged in user's username
-            dbUser.then(function(data){
-                if (data && data._id && data._id === decoded.userid) {
+                    if (decoded.exp <= Date.now() && false) {
+                         res.status(400);
+                         res.json({
+                             "status": 400,
+                             "message": "Token Expired"
+                         });
+                         return;
+                     }
+                    var dbUser = Q.resolve(validateUser(decoded.userid)); // The key would be the logged in user's username
+                     dbUser.then(function(data){
+                         if (data && data._id && data._id === decoded.userid) {
+                             if (req.url.indexOf('/api/v1/') >= 0) {
+                                req.userDetails = data;
+                                next(); // To move to next middleware
+                             } else {
+                                 res.status(403);
+                                 res.json({
+                                 "status": 403,
+                                 "message": "Not Authorized"
+                                 });
+                                 return;
+                             }
+                         } else {
+                         // No user with this name exists, respond back with a 401
+                             res.status(401);
+                             res.json({
+                             "status": 401,
+                             "message": "Invalid User"
+                             });
+                             return;
+                         }
+                     },function(err){
+                         res.status(401);
+                         res.json({
+                             "status": 401,
+                             "message": "Invalid User"
+                         });
+                         return;
+                     });
+                }else if (req.headers['x-diy-mode'] === 'USER'){
                     if (req.url.indexOf('/api/v1/') >= 0) {
-                        req.userDetails = data;
+                        //req.userDetails = data;
                         next(); // To move to next middleware
                     } else {
                         res.status(403);
@@ -53,23 +74,8 @@ module.exports = function(req, res, next) {
                         });
                         return;
                     }
-                } else {
-                    // No user with this name exists, respond back with a 401
-                    res.status(401);
-                    res.json({
-                        "status": 401,
-                        "message": "Invalid User"
-                    });
-                    return;
                 }
-            },function(err){
-                res.status(401);
-                res.json({
-                    "status": 401,
-                    "message": "Invalid User"
-                });
-                return;
-            });*/
+            }
 
 
         } catch (err) {

@@ -3,6 +3,7 @@ var projectDetails = require('../ProjectServices/ProjectList.js').readProject;
 var projectList = require('../ProjectServices/ProjectList.js').getAllProjects;
 var projectLatest = require('../ProjectServices/ProjectList.js').getLatest;
 var projectCreate = require('../ProjectServices/ProjectCreateUpdate.js').addProject;
+var uploadImage = require('../ProjectServices/ProjectUploadImage.js').uploadImage;
 var projects = {
 
     read: function(req, res) {
@@ -19,6 +20,10 @@ var projects = {
     
     create: function(req, res){
         projectCreate(req, res);
+    },
+
+    uploadImage: function(req, res){
+        uploadImage(req, res);
     }
 };
 

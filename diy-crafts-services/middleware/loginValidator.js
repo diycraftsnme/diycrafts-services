@@ -31,8 +31,7 @@
                 if(item && item._id){
                     resObj = {
                         "status": "success",
-                        username: item.username,
-                        userid: item._id
+                        username: item.username
                     };
                     resObj = genToken(resObj);
                 } else{

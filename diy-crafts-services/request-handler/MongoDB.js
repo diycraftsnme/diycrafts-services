@@ -9,14 +9,19 @@
         "email" : String,
         "firstName" : String,
         "lastName" : String,
-        "password": String
+        "password": String,
+        "lastProjectUploadDate":Number
+    });
+    var procedureSchema = new mongoSchema({
+        "operation": String,
+        "photo": Array
     });
     var projectSchema = new mongoSchema({
         "projectId": String,
         "name": String,
         "description":  String,
         "materialsRequired": Array,
-        "procedure": Array,
+        "procedure": [procedureSchema],
         "publishDate": Number,
         "photoGuideAvailable": Boolean,
         "videoGuideAvailable": Boolean,
@@ -25,11 +30,16 @@
         "urlName": String,
         "thumbnailName": String,
         "className": String,
-        "tags": String
+        "tags": String,
+        "createdBy": String,
+        "approved": Boolean,
+        "active": Boolean,
+        "creatorId": String
     });
     var dbSchema = {
         "user":  mongoose.model('Users',userSchema),
-        "project": mongoose.model('Projects', projectSchema)
+        "project": mongoose.model('Projects', projectSchema),
+        "memberProject": mongoose.model('Projects', projectSchema)
     };
 // create model if not exists.
     module.exports = dbSchema;

@@ -18,10 +18,21 @@ module.exports = function(req, res, next) {
         try {
 
             
-            if(req.headers['x-diy-mode']){
-                if(req.headers['x-diy-mode'] === 'MEMBER'){
+            if(req.headers['x-diycrafts-mode']){
+                if(req.headers['x-diycrafts-mode'] === 'MEMBER'){
+                    if (req.url.indexOf('/api/v1/') >= 0) {
+                        //req.userDetails = data;
+                        next(); // To move to next middleware
+                    } else {
+                        res.status(403);
+                        res.json({
+                            "status": 403,
+                            "message": "Not Authorized"
+                        });
+                        return;
+                    }
                     // Authorize the user to see if s/he can access our resources
-                    var decoded = jwt.decode(token || key, require('../config/secret.js')());
+                    /*var decoded = jwt.decode(token || key, require('../config/secret.js')());
 
                     if (decoded.exp <= Date.now() && false) {
                          res.status(400);
@@ -61,8 +72,8 @@ module.exports = function(req, res, next) {
                              "message": "Invalid User"
                          });
                          return;
-                     });
-                }else if (req.headers['x-diy-mode'] === 'USER'){
+                     });*/
+                }else if (req.headers['x-diycrafts-mode'] === 'USER'){
                     if (req.url.indexOf('/api/v1/') >= 0) {
                         //req.userDetails = data;
                         next(); // To move to next middleware

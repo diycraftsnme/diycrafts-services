@@ -5,11 +5,13 @@
 
 (function(){
     var mongoProjectInst = require('../request-handler/MongoDB.js').project;
+    var mongoMemberProjectInst = require('../request-handler/MongoDB.js').memberProject;
     var customResponseObj = require('../response-handler/custom-response-handling.js');
     var constants = require('../config/constants.js');
     var q = require('q');
     var moment = require('moment');
     var assert = require('assert');
+    var mailServices = require('../UserServices/mail-services.js');
     var createUpdateProject = {
         addProject:function(req, res){
             if(req && req.headers['x-diycrafts-target'] && (req.headers['x-diycrafts-target'] === 'DIYCRAFTS_CREATE' || req.headers['x-diycrafts-target'] === 'DIYCRAFTS_UPDATE')){
@@ -77,6 +79,19 @@
                     }
                 }
             }
+            if(requestObj.userDetails){
+                detailsObj.createdBy = '';
+                if(requestObj.userDetails.firstName){
+                    detailsObj.createdBy += requestObj.userDetails.firstName;
+                }
+                if(requestObj.userDetails.lastName){
+                    detailsObj.createdBy += ' ' + requestObj.userDetails.lastName;
+                }
+                if(requestObj.userDetails.id){
+                    detailsObj.creatorId = requestObj.userDetails.id;
+                }
+            }
+            detailsObj.approved = false;
             return detailsObj;
         },
         createNewProject: function(requestObj, detailsObj, res, isUpdate){
@@ -96,12 +111,13 @@
                                 }
                                 detailsObj.publishDate = moment.utc().valueOf();
                                 detailsObj.projectId = 'diy-'+projectIdNum;
-                                var projectInst = mongoProjectInst(detailsObj);
+                                var projectInst = mongoMemberProjectInst(detailsObj);
                                 projectInst.save([detailsObj], function(err, result){
                                     if(result && result.projectId){
                                         res.status(200);
                                         res.json({
-                                            projectId: result.projectId
+                                            projectId: result.projectId,
+                                            message: 'Project Submitted successfully'
                                         });
                                     }
                                 });
@@ -115,7 +131,8 @@
                                 if(result && result.matchedCount && result.matchedCount === 1){
                                     res.status(200);
                                     res.json({
-                                        projectId: requestObj.projectId
+                                        projectId: requestObj.projectId,
+                                        message: "Project updated successfully"
                                     });
                                 }
                             });
@@ -153,6 +170,65 @@
                 deferred.resolve(projectsList);
             });
             return deferred.promise;
+        },
+        approveRejectProject: function(req, res){
+            if(req && req.headers['x-diycrafts-target'] && req.headers['x-diycrafts-target'] === 'PROJECT_APPROVAL' && req.userDetails && req.userDetails.id === constants.superAdminId){
+                var requestObj = req.body;
+                if(requestObj && requestObj.projectId && requestObj.approved !== undefined){
+                    var query = {
+                        projectId: requestObj.projectId
+                    };
+                    var queryOptions = {
+                        sort: ['publishDate']
+                    };
+                    mongoMemberProjectInst.collection.find(query,queryOptions).limit(1).toArray(function(err, results){
+                        if(assert.equal(null, err)){
+                            customResponseObj.serverError(res);
+                        }else{
+                            if(results && results.length === 1){
+                                var memberProject = results[0];
+                                if(memberProject){
+                                    delete memberProject.id;
+                                }
+                                memberProject.approved = requestObj.approved;
+                                var approvalStatus = requestObj.approved? 'Approved': 'Rejected';
+                                var projectInst = mongoProjectInst(memberProject);
+                                projectInst.save([memberProject], function(err, result){
+                                    mongoMemberProjectInst.collection.remove({projectId: requestObj.projectId}, {justOne: true});
+                                    var substitutionObj = {
+                                        name: req.userDetails.name,
+                                        projectName: memberProject.name,
+                                        shortDescription: memberProject.description
+                                    };
+                                    var mailObj = {
+                                        fromEmail: 'letscreate@diycraftsnme.com',
+                                        toEmail: req.userDetails.email,
+                                        subject: 'Congrats, Your video is now published in diycraftsnme.com',
+                                        subscriberId: req.userDetails.id
+                                    };
+                                    mailServices.sendMail(res, mailObj, 'publish_success', substitutionObj);
+                                    if(result && result.projectId){
+                                        res.status(200);
+                                        res.json({
+                                            projectId: result.projectId,
+                                            message: 'Project '+ approvalStatus + ' successfully'
+                                        });
+                                    }else{
+                                        customResponseObj.serverError(res);
+                                    }
+                                });
+                            }else{
+                                customResponseObj.serverError(res);
+                            }
+                        }
+
+                    });
+                }else{
+                    customResponseObj.invalidRequest(res, 'Project Id and approval status is required');
+                }
+            }else{
+                customResponseObj.unAuthorizedError(res);
+            }
         }
     };
     module.exports = createUpdateProject;

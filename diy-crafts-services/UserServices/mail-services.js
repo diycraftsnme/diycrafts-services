@@ -45,7 +45,7 @@
                 body: mailObj
             });
 
-            sg.API(request, function(error, response) {
+            sg.API(request, function(error, res) {
                 if(!error){
                     if(res){
                         res.status(200);

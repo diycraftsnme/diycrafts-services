@@ -15,6 +15,16 @@
                 });
             }
         },
+        unAuthorizedError: function(res){
+            if(res){
+                res.status(403);
+                res.json({
+                    "status": "failure",
+                    "severity": "error",
+                    "message": "You do not have enough permissions to perform the action"
+                });
+            }
+        },
         invalidRequest: function(res, errorMsg){
             if(res){
                 res.status(401);

@@ -13,6 +13,8 @@ router.get('/test', users.test);
  * Routes that can be accessed only by autheticated users
  */
 router.get('/api/v1/projects/projectsList', projects.fetch);
+router.get('/api/v1/projects/myProjects', projects.myProjects);
+router.get('/api/v1/projects/memberProjects', projects.memberProjects);
 router.get('/api/v1/projects/details', projects.read);
 router.get('/api/v1/projects/latest', projects.getLatest);
 router.post('/api/v1/projects/create', projects.create);

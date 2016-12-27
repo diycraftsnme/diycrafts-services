@@ -13,7 +13,7 @@ app.all('/*', function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*"); // restrict it to the required domain
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
     // Set custom headers for CORS
-    res.header('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key,x-diy-key, x-diycrafts-target');
+    res.header('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key,x-diy-key, x-diycrafts-target, x-diycrafts-mode');
     if (req.method == 'OPTIONS') {
         res.status(200).end();
     } else {

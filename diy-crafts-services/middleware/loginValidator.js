@@ -4,6 +4,7 @@
     var mongoCreateInst =  require("../request-handler/MongoDB.js").user;
     var jwt = require('jwt-simple');
     var Q = require('q');
+    var bcrypt = require('bcrypt-nodejs');
     module.exports = {
         authorizeUser:authorizeUser
     };
@@ -25,21 +26,29 @@
     }
     function authorizeLogin(req,res){
         var resObj = {};
-        mongoCreateInst.find({emailId: req.emailId}, function (err, items) {
+        mongoCreateInst.find({email: req.email}, function (err, items) {
             if(!assert.equal(null, err)){
-                var item = validateFindUserQueryResult(req, items);
-                if(item && item._id){
-                    resObj = {
-                        "status": "success",
-                        username: item.username
-                    };
-                    resObj = genToken(resObj);
-                } else{
-                    resObj = {
-                        "status": "failure",
-                        "err_msg": "EmailId/Password is invalid"
-                    };
-                }
+                Q.all([validateFindUserQueryResult(req, items)]).then(function(data){
+                   if(data && data[0]){
+                       var item = data[0];
+                       if(item && item._id){
+                           resObj = {
+                               "status": "success",
+                               user: {
+                                   firstName: item.firstName,
+                                   lastName: item.lastName
+                               }
+                           };
+                           resObj = genToken(resObj);
+                       } else{
+                           resObj = {
+                               "status": "failure",
+                               "err_msg": "EmailId/Password is invalid"
+                           };
+                       }
+                   }
+
+                });
             }else if (err){
                 resObj = {
                     "status": "failure",
@@ -66,21 +75,30 @@
 
             }else{
                 // Insert a single document
-                if(req.emailId && req.password && req.username){
-                    var newUser = mongoCreateInst(req);
-                    newUser.save([req], function (err, result) {
-                        if(!assert.equal(null, err)){
-                            res.json({
-                                "status":200,
-                                "message":"Signup successful"
-                            });
-                        }else if (err){
-                            res.status(401);
-                            res.json({
-                                "status": 401,
-                                "message": "Invalid credentials"
-                            });
-                        }
+                if(req.email && req.password && req.firstName && req.lastName){
+                    bcrypt.hash(req.password, null, null, function(err, hash) {
+                        // Store hash in your password DB.
+                        var userObj = {
+                           email: req.email,
+                            passwordHash: hash,
+                            firstName: req.firstName,
+                            lastName: req.lastName
+                        };
+                        var newUser = mongoCreateInst(userObj);
+                        newUser.save([userObj], function (err, result) {
+                            if(!assert.equal(null, err)){
+                                res.json({
+                                    "status":200,
+                                    "message":"Signup successful"
+                                });
+                            }else if (err){
+                                res.status(401);
+                                res.json({
+                                    "status": 401,
+                                    "message": "Invalid credentials"
+                                });
+                            }
+                        });
                     });
                 }
             }
@@ -109,10 +127,12 @@
                 var item = items[indx];
                 if(!validatorKey){
                     if (item && item.emailId === req.emailId) {
-                        if (item.password === req.password) {
-                            itemFound = item;
-                            break;
-                        }
+                        // Load hash from your password DB.
+                        bcrypt.compare(req.password, item.passwordHash, function(err, pwdMatch) {
+                            if(pwdMatch){
+                                itemFound = item;
+                            }
+                        });
                     }
                 }else if(validatorKey){
                     if (item && item[validatorKey] === req) {
@@ -129,20 +149,25 @@
         var deferred = Q.defer();
         var resObj = mongoCreateInst.find({_id: userid}, function (err, items) {
             if(!assert.equal(null, err)){
-                var item = validateFindUserQueryResult(userid, items, 'id');
-                if(item && item.id){
-                    resObj = {
-                        "status": "success",
-                        "_id": item.id
-                    };
-                } else{
-                    //emailId is invalid
-                    resObj = {
-                        "status": "failure",
-                        "severity": "error",
-                        "err_msg": "Invalid Request"
-                    };
-                }
+                Q.all([validateFindUserQueryResult(userid, items, 'id')]).then(function(data){
+                    if(data && data[0]){
+                        var item = data[0];
+                        if(item && item.id){
+                            resObj = {
+                                "status": "success",
+                                "_id": item.id
+                            };
+                        } else{
+                            //emailId is invalid
+                            resObj = {
+                                "status": "failure",
+                                "severity": "error",
+                                "err_msg": "Invalid Request"
+                            };
+                        }
+                    }
+
+                });
             }else if (err){
                 resObj = {
                     "status": "failure",

@@ -39,6 +39,7 @@
                 }
             }
             var mailObj = this.getMailObject(fromMail, toMail, subject, content, name, templateName, substitutionObj);
+            console.log('mail obj = '+mailObj);
             var request = sg.emptyRequest({
                 method: 'POST',
                 path: '/v3/mail/send',
@@ -53,6 +54,7 @@
                             "status": "success",
                             "message": "Request accepted. We will get back to you as soon as possible"
                         });
+                        console.log('mail success');
                         return;
                     }
                 }else{
@@ -62,6 +64,7 @@
                             "status": "failure",
                             "message": "Sorry we're unable to process your request right now. Please try after sometime "
                         });
+                        console.log('mail failure');
                         return;
                     }
                 }

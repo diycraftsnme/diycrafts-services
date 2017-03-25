@@ -25,6 +25,8 @@
                         comment: req.body.comment,
                         name: req.body.name
                     };
+                    console.log('substitutionObj = '+substitutionObj);
+                    console.log('mailObj = '+mailObj);
                     mailServices.sendMail(res, mailObj, 'suggest_contact', substitutionObj);
                 }else{
                     res.status(401);

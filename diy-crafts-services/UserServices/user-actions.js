@@ -12,7 +12,7 @@
         suggestContact: function(req, res){
             if(req &&req.headers['x-diycrafts-target']&& (req.headers['x-diycrafts-target'] === 'DIYCRAFTS_SUGGEST'|| req.headers['x-diycrafts-target'] === 'DIYCRAFTS_CONTACTUS')){
                 if(req.body && req.body.email && req.body.name && req.body.subject && req.body.comment){
-                    mailServices.sendMail(req.body.email, 'letscreate@diycraftsnme.com', req.body.subject, req.body.comment, req.body.name, res);
+                    mailServices.sendMail(req.body.email, 'letscreate@diycraftsnme.com', req.body.subject, req.body.comment, req.body.name,'suggest_contact',res);
                 }else{
                     res.status(401);
                     res.json({

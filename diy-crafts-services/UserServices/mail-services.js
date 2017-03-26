@@ -74,16 +74,20 @@
             var mail = new helper.Mail();
             var from_email = new helper.Email(fromEmail, testFromName);
             var to_email = new helper.Email(toEmail, name);
-            //var _subject = subject;
+            var _subject = subject;
             //var _content = new helper.Content('text/plain', content);
             mail.setFrom(from_email);
 
-            //mail.setSubject(_subject);
+            mail.setSubject(_subject);
 
             var personalization = new helper.Personalization();
             personalization.addTo(to_email);
             personalization.addBcc(from_email);
             var substitution = new helper.Substitution("%name%", name);
+            personalization.addSubstitution(substitution);
+            substitution = new helper.Substitution("%from_email%", fromEmail);
+            personalization.addSubstitution(substitution);
+            substitution = new helper.Substitution("%comment%", content);
             personalization.addSubstitution(substitution);
             mail.addPersonalization(personalization);
             //mail.addContent(_content);
